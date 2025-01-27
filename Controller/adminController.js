@@ -1,9 +1,9 @@
-const User = require('../Model/userModel');
+const Customer = require('../Model/customerModel');
 const bcrypt = require('bcrypt');
 
 const getCustomer = async (req, res) => {
     try {
-        const user = await User.find();
+        const user = await Customer.find();
         if (user) {
             return res.status(200).json({ user, message: "List of Customers" });
         } else {
@@ -21,12 +21,12 @@ const postCustomer = async (req, res) => {
         return res.status(400).json({ message: "Required Details are Missing" });
     } else {
         if (role === "admin") {
-            const adminExists = await User.findOne({ role: "admin" });
+            const adminExists = await Customer.findOne({ role: "admin" });
             if (adminExists) {
                 return res.status(400).json({ message: "Admin already exists!" })
             } else {
                 const hashedPassword = await bcrypt.hash(password, 12);
-                const newUser = new User({
+                const newUser = new Customer({
                     name,
                     email,
                     password: hashedPassword,
@@ -40,14 +40,14 @@ const postCustomer = async (req, res) => {
             }
         } else {
             try {
-                const exsistingUser = await User.findOne({ email });
+                const exsistingUser = await Customer.findOne({ email });
                 if (exsistingUser) {
                     return res.status(400).json({
                         message: "Customer Already Exsist"
                     });
                 } else {
                     const hashedPassword = await bcrypt.hash(password, 12);
-                    const newUser = new User({
+                    const newUser = new Customer({
                         name,
                         email,
                         password: hashedPassword,
@@ -73,7 +73,7 @@ const updateCustomer = async (req, res) => {
         const { id } = req.params;
         const updates = req.body;
         const { user, ...creds } = updates;
-        const updatedCustomer = await User.findByIdAndUpdate(id, creds, { new: true });
+        const updatedCustomer = await Customer.findByIdAndUpdate(id, creds, { new: true });
         if (!updatedCustomer) {
             return res.status(404).json({ message: 'Customer not found.' });
         }
@@ -88,7 +88,7 @@ const updateCustomer = async (req, res) => {
 const deleteCustomer = async (req, res) => {
     try {
         const { id } = req.params;
-        const deletedCustomer = await User.findByIdAndDelete(id);
+        const deletedCustomer = await Customer.findByIdAndDelete(id);
         if (!deletedCustomer) {
             return res.status(404).json({ message: 'Customer not found.' });
         }

@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const User = require("../Model/userModel");
+const Customer = require("../Model/customerModel");
 
 const register = async (req, res) => {
   const { name, email, password, role } = req.body;
@@ -8,12 +8,12 @@ const register = async (req, res) => {
     return res.status(400).json({ message: "Required Details are Missing" });
   } else {
     if (role === "admin") {
-      const adminExists = await User.findOne({ role: "admin" });
+      const adminExists = await Customer.findOne({ role: "admin" });
       if (adminExists) {
         return res.status(400).json({ message: "Admin already exists!" })
       } else {
         const hashedPassword = await bcrypt.hash(password, 12);
-        const newUser = new User({
+        const newUser = new Customer({
           name,
           email,
           password: hashedPassword,
@@ -31,23 +31,22 @@ const register = async (req, res) => {
       }
     } else {
       try {
-        const exsistingUser = await User.findOne({ email });
+        const exsistingUser = await Customer.findOne({ email });
         if (exsistingUser) {
           return res.status(400).json({
             message: "User Already Exsist"
           });
         } else {
           const hashedPassword = await bcrypt.hash(password, 12);
-          const newUser = new User({
+          const newUser = new Customer({
             name,
             email,
             password: hashedPassword,
             role
           });
           await newUser.save();
-          const token = jwt.sign({
-            _id: newUser._id
-          }, 'secretkey123', { expiresIn: '1d' });
+          const token = jwt.sign(      { id: newUser._id, role: newUser.role, email: newUser.email },
+'secretkey123', { expiresIn: '1d' });
           res.status(200).json({
             user: { name: newUser.name, email: newUser.email, role: newUser.role },
             message: "New User has been saved Successfully",
@@ -67,7 +66,7 @@ const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await Customer.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "User not found!" });
     }
@@ -77,7 +76,7 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      { id: user._id, role: user.role, email: user.email },
       "your_secret_key",
       { expiresIn: "1d" }
     );
