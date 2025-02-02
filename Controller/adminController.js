@@ -16,8 +16,8 @@ const getCustomer = async (req, res) => {
 }
 
 const postCustomer = async (req, res) => {
-    const { name, email, password, role } = req.body;
-    if (!name || !email || !password || !role) {
+    const { name, email, password, role, status} = req.body;
+    if (!name || !email || !password || !role || !status) {
         return res.status(400).json({ message: "Required Details are Missing" });
     } else {
         if (role === "admin") {
@@ -30,11 +30,12 @@ const postCustomer = async (req, res) => {
                     name,
                     email,
                     password: hashedPassword,
-                    role
+                    role,
+                    status
                 });
                 await newUser.save();
                 res.status(200).json({
-                    user: { name: newUser.name, email: newUser.email, role: newUser.role },
+                    user: { name: newUser.name, email: newUser.email, role: newUser.role, status : newUser.status },
                     message: "New Admin has been saved Successfully",
                 });
             }
@@ -51,11 +52,12 @@ const postCustomer = async (req, res) => {
                         name,
                         email,
                         password: hashedPassword,
-                        role
+                        role,
+                        status
                     });
                     await newUser.save();
                     res.status(200).json({
-                        user: { name: newUser.name, email: newUser.email, role: newUser.role },
+                        user: { name: newUser.name, email: newUser.email, role: newUser.role, status : newUser.status },
                         message: "New Customer has been saved Successfully",
                     });
                 }

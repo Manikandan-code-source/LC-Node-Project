@@ -1,7 +1,7 @@
 const Product = require("../Model/productModel");
 
 const createProduct = async (req, res) => {
-  const { name, price, count } = req.body;
+  const { name, price, count, image, desc } = req.body;
   if (!name || !price || !count) {
     return res.status(400).json({ message: "Product details are missing" });
   }
@@ -9,14 +9,18 @@ const createProduct = async (req, res) => {
     const product = new Product({
       name,
       price,
-      count
+      count,
+      image,
+      desc
     });
     await product.save();
     res.status(201).json({
       product: {
         name: product.name,
         price: product.price,
-        count: product.count
+        count: product.count,
+        image: product.image,
+        desc: product.desc
       },
       message: "Product has been added successfully!"
     });
@@ -27,17 +31,19 @@ const createProduct = async (req, res) => {
 };
 
 const updateProduct = async (req, res) => {
-  const { id } = req.params;  
-  const { name, price, count } = req.body;
+  const { id } = req.params;
+  const { name, price, count, image, desc } = req.body;
   if (!name || !price || !count) {
     return res.status(400).json({ message: "Product details are missing" });
   }
   try {
     const updatedProductDetail = {
-      name : name,
-      price : price,
-      count : count
-    }    
+      name: name,
+      price: price,
+      count: count,
+      image: image,
+      desc: desc
+    }
     const product = await Product.findByIdAndUpdate(id, updatedProductDetail, { new: true });
     if (!product) {
       return res.status(404).json({ message: "Product not found!" });
